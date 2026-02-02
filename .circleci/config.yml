@@ -8,18 +8,12 @@ jobs:
       - checkout
 
       - run:
-          name: Enable corepack and install pnpm
-          command: |
-            corepack enable
-            corepack prepare pnpm@latest --activate
-
-      - run:
           name: Install dependencies
-          command: pnpm install
+          command: npx pnpm install
 
       - run:
           name: Run Multiverse tests
-          command: pnpm test
+          command: npx pnpm test
           environment:
             MULTIVERSE_URL: https://multiverse-vqjj.onrender.com
             # ANTHROPIC_API_KEY is set in CircleCI project settings
