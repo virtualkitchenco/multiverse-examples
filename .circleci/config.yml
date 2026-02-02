@@ -1,0 +1,31 @@
+version: 2.1
+
+jobs:
+  multiverse-test:
+    docker:
+      - image: cimg/node:20.11
+    steps:
+      - checkout
+
+      - run:
+          name: Install pnpm
+          command: npm install -g pnpm
+
+      - run:
+          name: Install dependencies
+          command: pnpm install
+
+      - run:
+          name: Run Multiverse tests
+          command: pnpm test
+          environment:
+            MULTIVERSE_URL: https://multiverse-vqjj.onrender.com
+            # ANTHROPIC_API_KEY is set in CircleCI project settings
+            # GITHUB_TOKEN is set in CircleCI project settings (for PR comments)
+
+workflows:
+  test:
+    jobs:
+      - multiverse-test:
+          context:
+            - multiverse  # CircleCI context with ANTHROPIC_API_KEY, GITHUB_TOKEN

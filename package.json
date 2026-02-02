@@ -1,0 +1,23 @@
+{
+  "name": "multiverse-examples",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "tsx examples/flight-booking/test.ts",
+    "test:flight": "tsx examples/flight-booking/test.ts"
+  },
+  "dependencies": {
+    "@langchain/anthropic": "^0.3.14",
+    "@langchain/core": "^0.3.40",
+    "@langchain/langgraph": "^0.2.36",
+    "@virtualkitchenco/multiverse-sdk": "^0.0.1",
+    "langchain": "^0.3.9",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
