@@ -25,3 +25,7 @@ workflows:
       - multiverse-test:
           context:
             - multiverse  # CircleCI context with ANTHROPIC_API_KEY, GITHUB_TOKEN
+          filters:
+            branches:
+              ignore:
+                - main  # Only run on PR branches, not main
