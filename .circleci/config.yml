@@ -8,8 +8,10 @@ jobs:
       - checkout
 
       - run:
-          name: Install pnpm
-          command: npm install -g pnpm
+          name: Enable corepack and install pnpm
+          command: |
+            corepack enable
+            corepack prepare pnpm@latest --activate
 
       - run:
           name: Install dependencies
