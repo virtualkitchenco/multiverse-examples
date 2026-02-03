@@ -87,9 +87,8 @@ const bookFlightTool = tool(
 // Wrap Tools with Multiverse for simulation
 // =============================================================================
 
+// Name, description, and inputSchema are automatically extracted from searchFlightsTool
 export const searchFlights = wrap(searchFlightsTool, {
-  name: 'searchFlights',
-  description: 'Search for available flights between two cities on a specific date',
   outputSchema: SearchResultSchema,
   // Search results populate the flights collection
   effects: (output: SearchResult) =>
@@ -101,9 +100,8 @@ export const searchFlights = wrap(searchFlightsTool, {
     })),
 });
 
+// Name, description, and inputSchema are automatically extracted from bookFlightTool
 export const bookFlight = wrap(bookFlightTool, {
-  name: 'bookFlight',
-  description: 'Book a flight and process payment',
   outputSchema: BookingSchema,
   // Booking creates a booking record AND decrements available seats
   effects: (output: Booking, world: WorldStateAccessor) => {
