@@ -34,8 +34,8 @@ async function main() {
     },
 
     // Test configuration
-    scenarioCount: 20,
-    runsPerScenario: 1,
+    scenarioCount: 5,
+    runsPerScenario: 4,
     simulateUser: true,
     qualityThreshold: 70,
 
