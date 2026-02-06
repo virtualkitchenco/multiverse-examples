@@ -7,9 +7,10 @@
 
 import { ChatAnthropic } from '@langchain/anthropic';
 import { tool } from '@langchain/core/tools';
+import { MemorySaver } from '@langchain/langgraph';
 import { createReactAgent } from '@langchain/langgraph/prebuilt';
 import { z } from 'zod';
-import { wrap, type WorldStateAccessor } from '@virtualkitchenco/multiverse-sdk';
+import { wrap, type WorldStateAccessor, type AgentContext } from '@virtualkitchenco/multiverse-sdk';
 
 // =============================================================================
 // Output Schemas - Define the shape of tool responses
@@ -191,41 +192,23 @@ function getAgent() {
       anthropicApiKey: apiKey,
     });
 
+    // MemorySaver keeps full conversation state (including tool calls/results)
+    // across turns within a thread. Use context.runId as thread_id for parallel safety.
     agent = createReactAgent({
       llm,
       tools,
       messageModifier: getSystemPrompt(),
+      checkpointer: new MemorySaver(),
     });
   }
   return agent;
 }
 
-export async function runAgent(context?: {
-  userMessage?: string;
-  history?: Array<{ role: 'user' | 'assistant'; content: string }>;
-}): Promise<string> {
-  try {
-    const message = context?.userMessage ||
-      'Book me the cheapest flight from SFO to NYC for 1 passenger';
-
-    const messages = [
-      ...(context?.history || []).map(h => ({
-        role: h.role === 'assistant' ? 'assistant' : 'user',
-        content: h.content
-      })),
-      { role: 'user', content: message },
-    ];
-
-    console.log('[demo-agent] Invoking agent with message:', message.substring(0, 80) + '...');
-    const result = await getAgent().invoke({ messages });
-
-    const last = result.messages[result.messages.length - 1];
-    const response = typeof last.content === 'string' ? last.content : JSON.stringify(last.content);
-    console.log('[demo-agent] Agent response:', response.substring(0, 100) + '...');
-
-    return response;
-  } catch (error) {
-    console.error('[demo-agent] Error invoking agent:', error);
-    throw error;
-  }
+export async function runAgent(context: AgentContext): Promise<string> {
+  const result = await getAgent().invoke(
+    { messages: [{ role: 'user', content: context.userMessage }] },
+    { configurable: { thread_id: context.runId } }
+  );
+  const last = result.messages[result.messages.length - 1];
+  return typeof last.content === 'string' ? last.content : JSON.stringify(last.content);
 }
