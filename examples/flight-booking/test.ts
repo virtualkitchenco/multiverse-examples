@@ -24,6 +24,7 @@ async function main() {
   console.log('\n🔮 Multiverse CI Demo\n');
 
   const results = await multiverse.test({
+    name: 'flight-booking-agent',
     agent: runAgent,
     task: 'Help the user book a flight',
 
@@ -34,8 +35,8 @@ async function main() {
     },
 
     // Test configuration
-    scenarioCount: 3,
-    runsPerScenario: 2,
+    scenarioCount: 5,
+    runsPerScenario: 4,
     simulateUser: true,
     qualityThreshold: 70,
 
