@@ -18,8 +18,8 @@ importers:
         specifier: ^0.2.36
         version: 0.2.74(@langchain/core@0.3.80(openai@5.12.2(zod@3.25.76)))(zod-to-json-schema@3.25.1(zod@3.25.76))
       '@virtualkitchenco/multiverse-sdk':
-        specifier: ^0.0.5
-        version: 0.0.5(@anthropic-ai/sdk@0.65.0(zod@3.25.76))(openai@5.12.2(zod@3.25.76))
+        specifier: ^0.0.12
+        version: 0.0.12(@anthropic-ai/sdk@0.65.0(zod@3.25.76))(openai@5.12.2(zod@3.25.76))
       langchain:
         specifier: ^0.3.9
         version: 0.3.37(@langchain/anthropic@0.3.34(@langchain/core@0.3.80(openai@5.12.2(zod@3.25.76)))(zod@3.25.76))(@langchain/core@0.3.80(openai@5.12.2(zod@3.25.76)))(openai@5.12.2(zod@3.25.76))
@@ -275,8 +275,8 @@ packages:
   '@types/uuid@10.0.0':
     resolution: {integrity: sha512-7gqG38EyHgyP1S+7+xomFtL+ZNHcKv6DwNaCZmJmo1vgMugyF3TCnXVg4t1uk89mLNwnLtnY3TpOpCOyp1/xHQ==}
 
-  '@virtualkitchenco/multiverse-sdk@0.0.5':
-    resolution: {integrity: sha512-vHNKTHdZh/9G6zzeTWB70td1w3Yq2A9+CtKJ7MjX1JawEjWLHokqBRL8eucUeKPMshQTUf49+EyC4b22afzZfA==}
+  '@virtualkitchenco/multiverse-sdk@0.0.12':
+    resolution: {integrity: sha512-RIcBk+GuxLWhHHWJWx7qm4L17MQjyEtzbQTImM9bJoiFrWOzeAwPnJnwMPTkSIMKDAadqYI4VZUOD6pzecIRxg==}
     peerDependencies:
       '@anthropic-ai/sdk': '>=0.20.0'
       '@google/generative-ai': '>=0.1.0'
@@ -289,8 +289,8 @@ packages:
       openai:
         optional: true
 
-  '@virtualkitchenco/multiverse-types@0.0.5':
-    resolution: {integrity: sha512-6AiB4mNltyj1JDlFuyXM+KrhBXrOENVE/UqBf9THBrBwvqWpWDucYDMAygrkJpY29srdIRaeheRO/CBgBkqZhA==}
+  '@virtualkitchenco/multiverse-types@0.0.12':
+    resolution: {integrity: sha512-hKsT6apGyVN5QHAAdA2XXeOX+UkiF5ePVM8deUcrcqtayQGj/xyASVu8eDRqHPZem7nLcjoaJAZHo5KF0oJmDw==}
 
   ansi-styles@4.3.0:
     resolution: {integrity: sha512-zbB9rCJAT1rbjiVDb2hqKFHNYLxgtk8NURxZ3IZwD3F6NtxbXZQCnnSi1Lkx+IDohdPlFp222wVALIheZJQSEg==}
@@ -710,15 +710,15 @@ snapshots:
 
   '@types/uuid@10.0.0': {}
 
-  '@virtualkitchenco/multiverse-sdk@0.0.5(@anthropic-ai/sdk@0.65.0(zod@3.25.76))(openai@5.12.2(zod@3.25.76))':
+  '@virtualkitchenco/multiverse-sdk@0.0.12(@anthropic-ai/sdk@0.65.0(zod@3.25.76))(openai@5.12.2(zod@3.25.76))':
     dependencies:
-      '@virtualkitchenco/multiverse-types': 0.0.5
+      '@virtualkitchenco/multiverse-types': 0.0.12
       nanoid: 5.1.6
     optionalDependencies:
       '@anthropic-ai/sdk': 0.65.0(zod@3.25.76)
       openai: 5.12.2(zod@3.25.76)
 
-  '@virtualkitchenco/multiverse-types@0.0.5': {}
+  '@virtualkitchenco/multiverse-types@0.0.12': {}
 
   ansi-styles@4.3.0:
     dependencies:

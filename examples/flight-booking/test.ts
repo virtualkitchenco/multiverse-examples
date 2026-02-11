@@ -18,6 +18,7 @@ multiverse.configure({
     model: 'claude-sonnet-4-20250514',
   },
   baseUrl: process.env.MULTIVERSE_URL || 'http://localhost:3000',
+  apiKey: process.env.MULTIVERSE_API_KEY,
 });
 
 async function main() {

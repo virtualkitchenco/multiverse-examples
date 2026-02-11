@@ -10,10 +10,10 @@ import { tool } from '@langchain/core/tools';
 import { MemorySaver } from '@langchain/langgraph';
 import { createReactAgent } from '@langchain/langgraph/prebuilt';
 import { z } from 'zod';
-import { wrap, type WorldStateAccessor, type AgentContext } from '@virtualkitchenco/multiverse-sdk';
+import { wrap, type AgentContext, type Effect } from '@virtualkitchenco/multiverse-sdk';
 
 // =============================================================================
-// Output Schemas - Define the shape of tool responses
+// Schemas
 // =============================================================================
 
 const FlightSchema = z.object({
@@ -41,17 +41,15 @@ const BookingSchema = z.object({
   confirmationCode: z.string(),
 });
 
-// Type aliases
-type SearchResult = z.infer<typeof SearchResultSchema>;
-type Flight = z.infer<typeof FlightSchema>;
-type Booking = z.infer<typeof BookingSchema>;
-
 // =============================================================================
-// Tool Definitions (LangChain tools)
+// Tools — your actual implementations
 // =============================================================================
 
 const searchFlightsTool = tool(
-  async () => ({} as SearchResult), // Real implementation not used in sim
+  async ({ from, to, departureDate, passengers, cabinClass }) => {
+    const res = await fetch(`https://api.example.com/flights/search?from=${from}&to=${to}&date=${departureDate}&pax=${passengers}&class=${cabinClass ?? 'economy'}`);
+    return res.json();
+  },
   {
     name: 'searchFlights',
     description: 'Search for available flights between two cities on a specific date',
@@ -67,7 +65,13 @@ const searchFlightsTool = tool(
 );
 
 const bookFlightTool = tool(
-  async () => ({} as Booking), // Real implementation not used in sim
+  async ({ flightId, passengerName, email, creditCard }) => {
+    const res = await fetch('https://api.example.com/flights/book', {
+      method: 'POST',
+      body: JSON.stringify({ flightId, passengerName, email, creditCard }),
+    });
+    return res.json();
+  },
   {
     name: 'bookFlight',
     description: 'Book a flight and process payment',
@@ -85,16 +89,13 @@ const bookFlightTool = tool(
 );
 
 // =============================================================================
-// Wrap Tools with Multiverse for simulation
+// Wrap with Multiverse for simulation testing
 // =============================================================================
 
 export const searchFlights = wrap(searchFlightsTool, {
-  name: 'searchFlights',
-  description: 'Search for available flights between two cities on a specific date',
-  outputSchema: SearchResultSchema,
-  // Search results populate the flights collection
-  effects: (output: SearchResult) =>
-    output.flights.map((flight: Flight) => ({
+  output: SearchResultSchema,
+  effects: (output) =>
+    output.flights.map((flight) => ({
       operation: 'create' as const,
       collection: 'flights',
       id: flight.id,
@@ -103,12 +104,9 @@ export const searchFlights = wrap(searchFlightsTool, {
 });
 
 export const bookFlight = wrap(bookFlightTool, {
-  name: 'bookFlight',
-  description: 'Book a flight and process payment',
-  outputSchema: BookingSchema,
-  // Booking creates a booking record AND decrements available seats
-  effects: (output: Booking, world: WorldStateAccessor) => {
-    const effects: Array<{ operation: 'create' | 'update'; collection: string; id: string; data: object }> = [
+  output: BookingSchema,
+  effects: (output, world) => {
+    const effects: Effect[] = [
       {
         operation: 'create',
         collection: 'bookings',
@@ -131,7 +129,6 @@ export const bookFlight = wrap(bookFlightTool, {
 
     return effects;
   },
-  // Invariant: seats can never go negative
   invariants: [
     { collection: 'flights', field: 'seatsAvailable', condition: 'gte', value: 0 },
   ],
@@ -192,8 +189,6 @@ function getAgent() {
       anthropicApiKey: apiKey,
     });
 
-    // MemorySaver keeps full conversation state (including tool calls/results)
-    // across turns within a thread. Use context.runId as thread_id for parallel safety.
     agent = createReactAgent({
       llm,
       tools,
