@@ -13,7 +13,7 @@ jobs:
 
       - run:
           name: Run Multiverse tests
-          command: npx pnpm test
+          command: npx pnpm test:flight
           environment:
             MULTIVERSE_URL: https://multiverse-vqjj.onrender.com
             # ANTHROPIC_API_KEY is set in CircleCI project settings

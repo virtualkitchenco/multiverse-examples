@@ -4,14 +4,18 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "test": "tsx examples/flight-booking/test.ts",
-    "test:flight": "tsx examples/flight-booking/test.ts"
+    "test": "pnpm test:flight && pnpm test:restaurant && pnpm test:support",
+    "test:flight": "tsx examples/flight-booking/test.ts",
+    "test:flight:roundtrip": "tsx examples/flight-booking/test-roundtrip.ts",
+    "test:flight:group": "tsx examples/flight-booking/test-group.ts",
+    "test:restaurant": "tsx examples/restaurant-booking/test.ts",
+    "test:support": "tsx examples/customer-support/test.ts"
   },
   "dependencies": {
     "@langchain/anthropic": "^0.3.14",
     "@langchain/core": "^0.3.40",
     "@langchain/langgraph": "^0.2.36",
-    "@virtualkitchenco/multiverse-sdk": "^0.0.14",
+    "@virtualkitchenco/multiverse-sdk": "^0.0.15",
     "langchain": "^0.3.9",
     "zod": "^3.24.1"
   },
