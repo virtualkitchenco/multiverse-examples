@@ -18,12 +18,14 @@ multiverse.configure({
     model: 'claude-sonnet-4-20250514',
   },
   baseUrl: process.env.MULTIVERSE_URL || 'http://localhost:3000',
+  apiKey: process.env.MULTIVERSE_API_KEY,
 });
 
 async function main() {
   console.log('\n🔮 Multiverse CI Demo\n');
 
   const results = await multiverse.test({
+    name: 'flight-booking-agent',
     agent: runAgent,
     task: 'Help the user book a flight',
 
@@ -34,8 +36,8 @@ async function main() {
     },
 
     // Test configuration
-    scenarioCount: 3,
-    runsPerScenario: 2,
+    scenarioCount: 5,
+    runsPerScenario: 4,
     simulateUser: true,
     qualityThreshold: 70,
 

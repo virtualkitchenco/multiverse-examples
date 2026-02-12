@@ -7,12 +7,13 @@
 
 import { ChatAnthropic } from '@langchain/anthropic';
 import { tool } from '@langchain/core/tools';
+import { MemorySaver } from '@langchain/langgraph';
 import { createReactAgent } from '@langchain/langgraph/prebuilt';
 import { z } from 'zod';
-import { wrap, type WorldStateAccessor } from '@virtualkitchenco/multiverse-sdk';
+import { wrap, type AgentContext, type Effect } from '@virtualkitchenco/multiverse-sdk';
 
 // =============================================================================
-// Output Schemas - Define the shape of tool responses
+// Schemas
 // =============================================================================
 
 const FlightSchema = z.object({
@@ -40,17 +41,15 @@ const BookingSchema = z.object({
   confirmationCode: z.string(),
 });
 
-// Type aliases
-type SearchResult = z.infer<typeof SearchResultSchema>;
-type Flight = z.infer<typeof FlightSchema>;
-type Booking = z.infer<typeof BookingSchema>;
-
 // =============================================================================
-// Tool Definitions (LangChain tools)
+// Tools — your actual implementations
 // =============================================================================
 
 const searchFlightsTool = tool(
-  async () => ({} as SearchResult), // Real implementation not used in sim
+  async ({ from, to, departureDate, passengers, cabinClass }) => {
+    const res = await fetch(`https://api.example.com/flights/search?from=${from}&to=${to}&date=${departureDate}&pax=${passengers}&class=${cabinClass ?? 'economy'}`);
+    return res.json();
+  },
   {
     name: 'searchFlights',
     description: 'Search for available flights between two cities on a specific date',
@@ -66,7 +65,13 @@ const searchFlightsTool = tool(
 );
 
 const bookFlightTool = tool(
-  async () => ({} as Booking), // Real implementation not used in sim
+  async ({ flightId, passengerName, email, creditCard }) => {
+    const res = await fetch('https://api.example.com/flights/book', {
+      method: 'POST',
+      body: JSON.stringify({ flightId, passengerName, email, creditCard }),
+    });
+    return res.json();
+  },
   {
     name: 'bookFlight',
     description: 'Book a flight and process payment',
@@ -84,16 +89,13 @@ const bookFlightTool = tool(
 );
 
 // =============================================================================
-// Wrap Tools with Multiverse for simulation
+// Wrap with Multiverse for simulation testing
 // =============================================================================
 
 export const searchFlights = wrap(searchFlightsTool, {
-  name: 'searchFlights',
-  description: 'Search for available flights between two cities on a specific date',
-  outputSchema: SearchResultSchema,
-  // Search results populate the flights collection
-  effects: (output: SearchResult) =>
-    output.flights.map((flight: Flight) => ({
+  output: SearchResultSchema,
+  effects: (output) =>
+    output.flights.map((flight) => ({
       operation: 'create' as const,
       collection: 'flights',
       id: flight.id,
@@ -102,12 +104,9 @@ export const searchFlights = wrap(searchFlightsTool, {
 });
 
 export const bookFlight = wrap(bookFlightTool, {
-  name: 'bookFlight',
-  description: 'Book a flight and process payment',
-  outputSchema: BookingSchema,
-  // Booking creates a booking record AND decrements available seats
-  effects: (output: Booking, world: WorldStateAccessor) => {
-    const effects: Array<{ operation: 'create' | 'update'; collection: string; id: string; data: object }> = [
+  output: BookingSchema,
+  effects: (output, world) => {
+    const effects: Effect[] = [
       {
         operation: 'create',
         collection: 'bookings',
@@ -130,7 +129,6 @@ export const bookFlight = wrap(bookFlightTool, {
 
     return effects;
   },
-  // Invariant: seats can never go negative
   invariants: [
     { collection: 'flights', field: 'seatsAvailable', condition: 'gte', value: 0 },
   ],
@@ -195,37 +193,17 @@ function getAgent() {
       llm,
       tools,
       messageModifier: getSystemPrompt(),
+      checkpointer: new MemorySaver(),
     });
   }
   return agent;
 }
 
-export async function runAgent(context?: {
-  userMessage?: string;
-  history?: Array<{ role: 'user' | 'assistant'; content: string }>;
-}): Promise<string> {
-  try {
-    const message = context?.userMessage ||
-      'Book me the cheapest flight from SFO to NYC for 1 passenger';
-
-    const messages = [
-      ...(context?.history || []).map(h => ({
-        role: h.role === 'assistant' ? 'assistant' : 'user',
-        content: h.content
-      })),
-      { role: 'user', content: message },
-    ];
-
-    console.log('[demo-agent] Invoking agent with message:', message.substring(0, 80) + '...');
-    const result = await getAgent().invoke({ messages });
-
-    const last = result.messages[result.messages.length - 1];
-    const response = typeof last.content === 'string' ? last.content : JSON.stringify(last.content);
-    console.log('[demo-agent] Agent response:', response.substring(0, 100) + '...');
-
-    return response;
-  } catch (error) {
-    console.error('[demo-agent] Error invoking agent:', error);
-    throw error;
-  }
+export async function runAgent(context: AgentContext): Promise<string> {
+  const result = await getAgent().invoke(
+    { messages: [{ role: 'user', content: context.userMessage }] },
+    { configurable: { thread_id: context.runId } }
+  );
+  const last = result.messages[result.messages.length - 1];
+  return typeof last.content === 'string' ? last.content : JSON.stringify(last.content);
 }
