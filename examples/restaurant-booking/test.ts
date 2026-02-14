@@ -15,20 +15,22 @@ multiverse.configure({
 });
 
 async function main() {
-  console.log('\n🍽️  Restaurant Booking Agent Test\n');
+  console.log('\n  Restaurant Booking Agent Test\n');
 
-  const results = await multiverse.test({
+  const test = multiverse.describe({
     name: 'restaurant-booking-agent',
-    agent: runAgent,
     task: 'Help the user make a restaurant reservation',
+    agent: runAgent,
+  });
 
-    success: (world, _trace) => {
+  const results = await test.run({
+    success: (world) => {
       const reservations = world.getCollection('reservations');
       return reservations.size > 0;
     },
 
     scenarioCount: 5,
-    runsPerScenario: 4,
+    trialsPerScenario: 4,
     simulateUser: true,
     qualityThreshold: 70,
 
@@ -49,11 +51,11 @@ async function main() {
   }
 
   if (results.passRate < 70) {
-    console.error('\n❌ Pass rate below threshold (70%)');
+    console.error('\nPass rate below threshold (70%)');
     process.exit(1);
   }
 
-  console.log('\n✅ Tests passed!');
+  console.log('\nTests passed!');
 }
 
 main().catch((err) => {

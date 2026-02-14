@@ -17,20 +17,22 @@ multiverse.configure({
 });
 
 async function main() {
-  console.log('\n✈️  Flight Booking Agent Test — Round Trip\n');
+  console.log('\n  Flight Booking Agent Test — Round Trip\n');
 
-  const results = await multiverse.test({
+  const test = multiverse.describe({
     name: 'flight-booking-agent',
-    agent: runAgent,
     task: 'Help the user book a round-trip flight',
+    agent: runAgent,
+  });
 
-    success: (world, _trace) => {
+  const results = await test.run({
+    success: (world) => {
       const bookings = world.getCollection('bookings');
       return bookings.size >= 2;
     },
 
     scenarioCount: 5,
-    runsPerScenario: 4,
+    trialsPerScenario: 4,
     simulateUser: true,
     qualityThreshold: 70,
 
@@ -51,11 +53,11 @@ async function main() {
   }
 
   if (results.passRate < 70) {
-    console.error('\n❌ Pass rate below threshold (70%)');
+    console.error('\nPass rate below threshold (70%)');
     process.exit(1);
   }
 
-  console.log('\n✅ Tests passed!');
+  console.log('\nTests passed!');
 }
 
 main().catch((err) => {

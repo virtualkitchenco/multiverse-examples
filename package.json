@@ -15,7 +15,7 @@
     "@langchain/anthropic": "^0.3.14",
     "@langchain/core": "^0.3.40",
     "@langchain/langgraph": "^0.2.36",
-    "@virtualkitchenco/multiverse-sdk": "^0.0.15",
+    "@virtualkitchenco/multiverse-sdk": "^0.0.16",
     "langchain": "^0.3.9",
     "zod": "^3.24.1"
   },

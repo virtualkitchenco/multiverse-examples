@@ -15,20 +15,22 @@ multiverse.configure({
 });
 
 async function main() {
-  console.log('\n🎧 Customer Support Agent Test\n');
+  console.log('\n  Customer Support Agent Test\n');
 
-  const results = await multiverse.test({
+  const test = multiverse.describe({
     name: 'customer-support-agent',
-    agent: runAgent,
     task: 'Help the user get a refund for their order',
+    agent: runAgent,
+  });
 
-    success: (world, _trace) => {
+  const results = await test.run({
+    success: (world) => {
       const refunds = world.getCollection('refunds');
       return refunds.size > 0;
     },
 
     scenarioCount: 5,
-    runsPerScenario: 4,
+    trialsPerScenario: 4,
     simulateUser: true,
     qualityThreshold: 70,
 
@@ -49,11 +51,11 @@ async function main() {
   }
 
   if (results.passRate < 70) {
-    console.error('\n❌ Pass rate below threshold (70%)');
+    console.error('\nPass rate below threshold (70%)');
     process.exit(1);
   }
 
-  console.log('\n✅ Tests passed!');
+  console.log('\nTests passed!');
 }
 
 main().catch((err) => {
